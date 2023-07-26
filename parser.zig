@@ -56,6 +56,7 @@ pub const Parser = struct {
             .ADD => left.* + try self.parseExpression(newPrecedence),
             .MINUS => left.* - try self.parseExpression(newPrecedence),
             .MULTIPLY => left.* * try self.parseExpression(newPrecedence),
+            .DIVISION => @divExact(left.*, try self.parseExpression(newPrecedence)),
             else => 0,
         };
     }
