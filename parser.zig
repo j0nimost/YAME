@@ -25,11 +25,9 @@ pub const Parser = struct {
     fn eat(self: Self, tokenTag: TokenTag) ParserError!TokenTag {
         const currentToken: TokenTag = self.tokens[pos];
 
-        // TODO: Figure out how to check expected token is equal to current Token
-        _ = tokenTag;
-        // if (!eql(&currentToken, &tokenTag)) {
-        //     return ParserError.UnknownToken;
-        // }
+        if (@as(@typeInfo(TokenTag).Union.tag_type.?, tokenTag) != currentToken) {
+            return ParserError.UnknownToken;
+        }
 
         pos += 1;
         return currentToken;
