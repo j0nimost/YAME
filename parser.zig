@@ -11,46 +11,45 @@ const ParserError = error{
 };
 
 pub const Parser = struct {
-    const Self = @This();
     tokens: []const TokenTag,
-
-    var pos: usize = 0;
+    pos: usize,
 
     pub fn init(tokens: []const TokenTag) Parser {
         return Parser{
             .tokens = tokens,
+            .pos = 0,
         };
     }
 
-    fn eat(self: Self, tokenTag: TokenTag) ParserError!TokenTag {
-        const currentToken: TokenTag = self.tokens[pos];
+    fn eat(self: *Parser, tokenTag: TokenTag) ParserError!TokenTag {
+        const currentToken: TokenTag = self.tokens[self.pos];
 
         if (@as(@typeInfo(TokenTag).Union.tag_type.?, tokenTag) != currentToken) {
             return ParserError.UnknownToken;
         }
 
-        pos += 1;
+        self.pos += 1;
         return currentToken;
     }
 
-    pub fn parse(self: Self) !f64 {
+    pub fn parse(self: *Parser) !f64 {
         return self.parseExpression(0);
     }
 
-    fn parseExpression(self: Self, precedence: u8) ParserError!f64 {
+    fn parseExpression(self: *Parser, precedence: u8) ParserError!f64 {
         var left = try self.prefix();
-        while (precedence < try self.infixPrecedence(self.tokens[pos])) {
-            left = try self.infix(&left, self.tokens[pos]);
+        while (precedence < try self.infixPrecedence(self.tokens[self.pos])) {
+            left = try self.infix(&left, self.tokens[self.pos]);
         }
         return left;
     }
 
-    fn prefix(self: Self) ParserError!f64 {
+    fn prefix(self: *Parser) ParserError!f64 {
         const numberToken = try self.eat(TokenTag{ .NUM = 0 });
         return numberToken.NUM;
     }
 
-    fn infix(self: Self, left: *f64, tokenTag: TokenTag) ParserError!f64 {
+    fn infix(self: *Parser, left: *f64, tokenTag: TokenTag) ParserError!f64 {
         var token = try self.eat(tokenTag);
         var newPrecedence = try self.infixPrecedence(tokenTag);
         return switch (token) {
@@ -61,7 +60,7 @@ pub const Parser = struct {
         };
     }
 
-    fn infixPrecedence(self: Self, opToken: TokenTag) ParserError!u8 {
+    fn infixPrecedence(self: *Parser, opToken: TokenTag) ParserError!u8 {
         _ = self;
         return switch (opToken) {
             .EOF => 0,
