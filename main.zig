@@ -5,10 +5,6 @@ const writer = std.io.getStdOut().writer();
 
 pub fn main() !void {
     const MAXINPUTALLOCATIONSIZE = 512;
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer arena.deinit();
-
-    const allocator = arena.allocator();
 
     const stdIn = std.io.getStdIn();
     const reader = stdIn.reader();
@@ -16,11 +12,18 @@ pub fn main() !void {
     try writer.print("Welcome to Zalc, a Terminal based Math Calculator\n", .{});
     try writer.print("> ", .{});
 
-    const mathExpression = (try reader.readUntilDelimiterOrEofAlloc(allocator, '\n', MAXINPUTALLOCATIONSIZE)).?;
-    const scanner = scan.Scanner.init(mathExpression, allocator);
-    const tokens = try scanner.scan();
-    const parser = parse.Parser.init(tokens);
-    const ans = try parser.parse();
-    try writer.print("answer {d}\n", .{ans});
-    try writer.print("> ", .{});
+    while (true) {
+        var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+
+        const allocator = arena.allocator();
+
+        const mathExpression = (try reader.readUntilDelimiterOrEofAlloc(allocator, '\n', MAXINPUTALLOCATIONSIZE)).?;
+        const scanner = scan.Scanner.init(mathExpression, allocator);
+        const tokens = try scanner.scan();
+        var parser = parse.Parser.init(tokens);
+        const ans = try parser.parse();
+        try writer.print("answer {d}\n", .{ans});
+        try writer.print("> ", .{});
+        arena.deinit();
+    }
 }
