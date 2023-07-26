@@ -9,7 +9,7 @@ pub fn main() !void {
     const stdIn = std.io.getStdIn();
     const reader = stdIn.reader();
 
-    try writer.print("Welcome to Zalc, a Terminal based Math Calculator\n", .{});
+    try writer.print("Welcome to YAME, a Terminal based Math Calculator\n", .{});
     try writer.print("> ", .{});
 
     while (true) {
