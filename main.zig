@@ -22,7 +22,7 @@ pub fn main() !void {
         const tokens = try scanner.scan();
         var parser = parse.Parser.init(tokens);
         const ans = try parser.parse();
-        try writer.print("answer {d}\n", .{ans});
+        try writer.print("answer {d:.3}\n", .{ans});
         try writer.print("> ", .{});
         arena.deinit();
     }
